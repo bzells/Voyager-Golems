@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "voyager_golems:item/jellied_enriched_elixir"
+  }
+}

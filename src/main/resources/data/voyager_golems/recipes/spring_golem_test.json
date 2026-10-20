@@ -1,0 +1,17 @@
+{
+  "type": "voyager_golems:golem_production",
+  "golem": "voyager_golems:spring_golem",
+  "block": "minecraft:dirt",
+  "golem_level": 1,
+  "production_points": 200,
+  "outputs": [
+    {
+      "item": "minecraft:stick",
+      "count": 4
+    },
+    {
+      "item": "minecraft:oak_planks",
+      "count": 2
+    }
+  ]
+}
