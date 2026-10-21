@@ -5,33 +5,35 @@ import net.jzells.voyager_golems.common.data.GolemDenDefinition;
 import net.jzells.voyager_golems.common.items.golems.GolemItem;
 import net.jzells.voyager_golems.common.menus.GolemDenMenu;
 import net.jzells.voyager_golems.common.recipes.GolemProduceRecipe;
-import net.jzells.voyager_golems.common.recipes.VoyagerRecipes;
-import net.minecraft.Util;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.wrapper.RangedWrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 
 public class GolemDenBlockEntity extends BlockEntity implements MenuProvider {
 
@@ -40,10 +42,10 @@ public class GolemDenBlockEntity extends BlockEntity implements MenuProvider {
     public static final int OUTPUT_SLOTS = 15;
     private int progress;
 
-    private LazyOptional<IItemHandler> outputHandler = LazyOptional.empty();
+    private Optional<IItemHandler> outputHandler = Optional.empty();
 
     private IItemHandler createOutputHandler() {
-        return new net.minecraftforge.items.wrapper.RangedWrapper(
+        return new RangedWrapper(
                 this.inventory,
                 OUTPUT_START,
                 OUTPUT_START + OUTPUT_SLOTS // can only pull from output slots
@@ -56,22 +58,32 @@ public class GolemDenBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER ) {
-            if (!(outputHandler.isPresent())) {
-                outputHandler = LazyOptional.of(this::createOutputHandler); // create output handler if it isnt there
-            }
-            return outputHandler.cast();
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+//    @Override
+//    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+//        return saveWithoutMetadata(registries);
+//    }
+
+    public Optional<IItemHandler> getCapability() {
+        if (outputHandler.isEmpty()) {
+            outputHandler = Optional.of(this.createOutputHandler());
         }
-
-        return super.getCapability(cap);
+        return outputHandler;
     }
 
-    @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        outputHandler.invalidate(); // get rid of output handler when invalidate needs to happen
-    }
+//    @Override
+//    public void invalidateCapabilities() {
+//        super.invalidateCapabilities();
+//    }
+
+//    @Override
+//    public void invalidateCaps() {
+//        super.invalidateCaps();
+//        outputHandler.invalidate(); // get rid of output handler when invalidate needs to happen
+//    }
 
     public GolemItem getGolemItem()
     {
@@ -94,11 +106,16 @@ public class GolemDenBlockEntity extends BlockEntity implements MenuProvider {
             return null;
         }
         ResourceLocation recipe_key = ResourceLocation.parse(this.getGolemItem().getRecipe(this.getGolemStack()));
-        GolemProduceRecipe golemProduceRecipe = (GolemProduceRecipe) level.getRecipeManager()
-                .byKey(recipe_key)
-                .filter(recipe -> recipe instanceof GolemProduceRecipe).orElse(null);
 
-        return golemProduceRecipe;
+        //        GolemProduceRecipe golemProduceRecipe = (GolemProduceRecipe) level.getRecipeManager()
+//                .byKey(recipe_key)
+//                .filter(recipe -> recipe instanceof GolemProduceRecipe).orElse(null);
+
+        return (GolemProduceRecipe) level.getRecipeManager()
+                .byKey(recipe_key)
+                .map(RecipeHolder::value)
+                .filter(r -> r instanceof GolemProduceRecipe)
+                .orElse(null);
 
     }
 
@@ -123,7 +140,13 @@ public class GolemDenBlockEntity extends BlockEntity implements MenuProvider {
 
         GolemProduceRecipe golemProduceRecipe = (GolemProduceRecipe) level.getRecipeManager()
                 .byKey(recipe_key)
-                .filter(recipe -> recipe instanceof GolemProduceRecipe).orElse(null);
+                .map(RecipeHolder::value)
+                .filter(r -> r instanceof GolemProduceRecipe)
+                .orElse(null);
+
+//        GolemProduceRecipe golemProduceRecipe = (GolemProduceRecipe) level.getRecipeManager()
+//                .byKey(recipe_key)
+//                .filter(recipe -> recipe instanceof GolemProduceRecipe).orElse(null);
 
 
 
@@ -291,18 +314,23 @@ public class GolemDenBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
-        tag.put("Inventory", inventory.serializeNBT());
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        tag.put("Inventory", inventory.serializeNBT(registries));
         tag.putInt("Progress", this.progress);
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        this.load(tag, registries);
+    }
+
+    public void load(CompoundTag tag, HolderLookup.Provider registries) {
+//        super.load(tag);
 
         if (tag.contains("Inventory")) {
-            inventory.deserializeNBT(tag.getCompound("Inventory"));
+            inventory.deserializeNBT(registries, tag.getCompound("Inventory"));
         }
         if(tag.contains("Progress"))
         {
@@ -333,7 +361,7 @@ public class GolemDenBlockEntity extends BlockEntity implements MenuProvider {
             );
         }
 
-        if (!ItemStack.isSameItemSameTags(existing, stack)) {
+        if (!ItemStack.isSameItemSameComponents(existing, stack)) {
             return false;
         }
 

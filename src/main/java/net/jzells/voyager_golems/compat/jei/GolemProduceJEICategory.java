@@ -22,7 +22,10 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.RegistryObject;
+//import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredBlock;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.Nullable;
 
 public class GolemProduceJEICategory implements IRecipeCategory<GolemProduceRecipe> {
@@ -81,22 +84,22 @@ public class GolemProduceJEICategory implements IRecipeCategory<GolemProduceReci
                 RecipeIngredientRole.CATALYST,
                 10, 16
         ).addItemStack(
-                new ItemStack(recipe.getGolemItem())
+                recipe.getGolemItem()
         );
 
         builder.addSlot(
                 RecipeIngredientRole.CATALYST,
                 37, 38
         ).addItemStack(
-                new ItemStack(recipe.getGolemBlock()).setHoverName(Component.literal("§cPlace adjacent to den"))
+                new ItemStack(recipe.getGolemBlock())
         );
 
 
 
-        GolemItem golemItem = (GolemItem) recipe.getGolemItem().asItem();
+        GolemItem golemItem = (GolemItem) recipe.getGolemItem().getItem();
 
-        ItemStack denStack = VoyagerBlocks.BLOCKS.getEntries().stream()
-                .map(RegistryObject::get)
+        ItemStack denStack = VoyagerGolems.BLOCKS.getEntries().stream()
+                .map(DeferredHolder::get)
                 .filter(block -> block instanceof GolemDenBlock)
                 .map(block -> (GolemDenBlock) block)
                 .filter(denBlock ->
@@ -145,7 +148,7 @@ public class GolemProduceJEICategory implements IRecipeCategory<GolemProduceReci
 
     @Override
     public void draw(GolemProduceRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
-        GolemItem golemItem = (GolemItem) recipe.getGolemItem().asItem();
+        GolemItem golemItem = (GolemItem) recipe.getGolemItem().getItem();
         background.draw(guiGraphics);
         guiGraphics.drawString(
                 Minecraft.getInstance().font, "Level: " + recipe.getGolem_level(), 9, 58, 0x404040, false

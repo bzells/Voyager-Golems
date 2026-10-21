@@ -1,4 +1,4 @@
-package net.jzells.voyager_golems.integration.jei;
+package net.jzells.voyager_golems.compat.jei;
 
 import com.mojang.logging.LogUtils;
 import mezz.jei.api.IModPlugin;
@@ -17,6 +17,7 @@ import net.minecraft.client.Minecraft;
 
 import net.jzells.voyager_golems.util.Constants;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
 @JeiPlugin
 public class VoyagerGolemsJeiPlugin implements IModPlugin {
@@ -59,7 +60,7 @@ public class VoyagerGolemsJeiPlugin implements IModPlugin {
         LogUtils.getLogger().info("[JEI] Recipe count: {}", recipes.size());
         registration.addRecipes(
                 GolemProduceJEICategory.RECIPE_TYPE,
-                recipes
+                recipes.stream().map(RecipeHolder::value).toList()
         );
     }
 

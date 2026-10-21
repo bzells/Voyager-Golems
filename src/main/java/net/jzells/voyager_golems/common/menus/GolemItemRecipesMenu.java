@@ -11,10 +11,9 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.registries.ForgeRegistries;
 
 
 import java.util.Comparator;
@@ -114,8 +113,7 @@ public class GolemItemRecipesMenu extends AbstractContainerMenu {
     }
 
     private void openRecipesScreen(ServerPlayer player, ItemStack golem_stack) {
-        NetworkHooks.openScreen(
-                player,
+        player.openMenu(
                 new SimpleMenuProvider(
                         (containerId, playerInventory, p) -> {
                             GolemItemRecipesMenu menu = new GolemItemRecipesMenu(
@@ -129,11 +127,25 @@ public class GolemItemRecipesMenu extends AbstractContainerMenu {
                         Component.literal(this.GOLEM_STACK.getItem().getName(golem_stack).getString())
                 )
         );
+//        NetworkHooks.openScreen(
+//                player,
+//                new SimpleMenuProvider(
+//                        (containerId, playerInventory, p) -> {
+//                            GolemItemRecipesMenu menu = new GolemItemRecipesMenu(
+//                                    containerId,
+//                                    playerInventory
+//                            );
+//
+//                            menu.onOpen();
+//                            return menu;
+//                        },
+//                        Component.literal(this.GOLEM_STACK.getItem().getName(golem_stack).getString())
+//                )
+//        );
     }
 
     private void openUpgradeScreen(ServerPlayer player, ItemStack golem_stack) {
-        NetworkHooks.openScreen(
-                player,
+        player.openMenu(
                 new SimpleMenuProvider(
                         (containerId, playerInventory, p) -> {
                             GolemItemUpgradeMenu menu = new GolemItemUpgradeMenu(
@@ -147,10 +159,24 @@ public class GolemItemRecipesMenu extends AbstractContainerMenu {
                         Component.literal(this.GOLEM_STACK.getItem().getName(golem_stack).getString())
                 )
         );
+//        NetworkHooks.openScreen(
+//                player,
+//                new SimpleMenuProvider(
+//                        (containerId, playerInventory, p) -> {
+//                            GolemItemUpgradeMenu menu = new GolemItemUpgradeMenu(
+//                                    containerId,
+//                                    playerInventory
+//                            );
+//
+//                            menu.onOpen();
+//                            return menu;
+//                        },
+//                        Component.literal(this.GOLEM_STACK.getItem().getName(golem_stack).getString())
+//                )
+//        );
     }
     private void openStatsScreen(ServerPlayer player, ItemStack golem_stack) {
-        NetworkHooks.openScreen(
-                player,
+        player.openMenu(
                 new SimpleMenuProvider(
                         (containerId, playerInventory, p) -> {
                             GolemItemStatsMenu menu = new GolemItemStatsMenu(
@@ -164,11 +190,25 @@ public class GolemItemRecipesMenu extends AbstractContainerMenu {
                         Component.literal(this.GOLEM_STACK.getItem().getName(golem_stack).getString())
                 )
         );
+//        NetworkHooks.openScreen(
+//                player,
+//                new SimpleMenuProvider(
+//                        (containerId, playerInventory, p) -> {
+//                            GolemItemStatsMenu menu = new GolemItemStatsMenu(
+//                                    containerId,
+//                                    playerInventory
+//                            );
+//
+//                            menu.onOpen();
+//                            return menu;
+//                        },
+//                        Component.literal(this.GOLEM_STACK.getItem().getName(golem_stack).getString())
+//                )
+//        );
     }
 
     private void openHomeScreen(ServerPlayer player, ItemStack golem_stack) {
-        NetworkHooks.openScreen(
-                player,
+        player.openMenu(
                 new SimpleMenuProvider(
                         (containerId, playerInventory, p) -> {
                             GolemItemMenu menu = new GolemItemMenu(
@@ -182,6 +222,21 @@ public class GolemItemRecipesMenu extends AbstractContainerMenu {
                         Component.literal(this.GOLEM_STACK.getItem().getName(golem_stack).getString())
                 )
         );
+//        NetworkHooks.openScreen(
+//                player,
+//                new SimpleMenuProvider(
+//                        (containerId, playerInventory, p) -> {
+//                            GolemItemMenu menu = new GolemItemMenu(
+//                                    containerId,
+//                                    playerInventory
+//                            );
+//
+//                            menu.onOpen();
+//                            return menu;
+//                        },
+//                        Component.literal(this.GOLEM_STACK.getItem().getName(golem_stack).getString())
+//                )
+//        );
     }
 
     private List<GolemProduceRecipe> getDisplayedRecipes() {
@@ -194,8 +249,9 @@ public class GolemItemRecipesMenu extends AbstractContainerMenu {
         return level.getRecipeManager()
                 .getAllRecipesFor(VoyagerRecipes.GOLEM_PRODUCTION_TYPE)
                 .stream()
+                .map(RecipeHolder::value)
                 .filter(recipe ->
-                        recipe.getGolemItem() == golem_item
+                        recipe.getGolemItem().getItem() == golem_item
                                 && canUseRecipe(GOLEM_STACK, recipe))
                 .sorted(Comparator.comparing(recipe -> recipe.getId().toString()))
                 .toList();

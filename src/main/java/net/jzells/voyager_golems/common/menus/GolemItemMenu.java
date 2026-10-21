@@ -1,6 +1,5 @@
 package net.jzells.voyager_golems.common.menus;
 
-import mezz.jei.forge.platform.RecipeHelper;
 import net.jzells.voyager_golems.common.items.golems.GolemItem;
 import net.jzells.voyager_golems.common.recipes.GolemProduceRecipe;
 import net.jzells.voyager_golems.common.recipes.VoyagerRecipes;
@@ -20,9 +19,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 
@@ -127,7 +125,8 @@ public class GolemItemMenu extends AbstractContainerMenu {
         return level.getRecipeManager()
                 .getAllRecipesFor(VoyagerRecipes.GOLEM_PRODUCTION_TYPE)
                 .stream()
-                .filter(recipe -> recipe.getGolemItem() == golemStack.getItem())
+                .map(RecipeHolder::value)
+                .filter(recipe -> recipe.getGolemItem() == golemStack)
                 .filter(recipe -> recipe.getGolem_level() <= golemLevel)
                 .toList();
     }
@@ -145,9 +144,10 @@ public class GolemItemMenu extends AbstractContainerMenu {
         return level.getRecipeManager()
                 .getAllRecipesFor(VoyagerRecipes.GOLEM_PRODUCTION_TYPE)
                 .stream()
+                .map(RecipeHolder::value)
                 .filter(recipe ->
-                        ForgeRegistries.ITEMS.getKey(recipe.getGolemItem())
-                                .equals(ForgeRegistries.ITEMS.getKey(golemStack.getItem()))
+                        BuiltInRegistries.ITEM.getKey(recipe.getGolemItem().getItem())
+                                .equals(BuiltInRegistries.ITEM.getKey(golemStack.getItem()))
                 )
                 .toList();
     }
@@ -181,8 +181,7 @@ public class GolemItemMenu extends AbstractContainerMenu {
     }
 
     private void openRecipesScreen(ServerPlayer player, ItemStack golem_stack) {
-        NetworkHooks.openScreen(
-                player,
+        player.openMenu(
                 new SimpleMenuProvider(
                         (containerId, playerInventory, p) -> {
                             GolemItemRecipesMenu menu = new GolemItemRecipesMenu(
@@ -196,11 +195,25 @@ public class GolemItemMenu extends AbstractContainerMenu {
                         Component.literal(this.GOLEM_STACK.getItem().getName(golem_stack).getString())
                 )
         );
+//        NetworkHooks.openScreen(
+//                player,
+//                new SimpleMenuProvider(
+//                        (containerId, playerInventory, p) -> {
+//                            GolemItemRecipesMenu menu = new GolemItemRecipesMenu(
+//                                    containerId,
+//                                    playerInventory
+//                            );
+//
+//                            menu.onOpen();
+//                            return menu;
+//                        },
+//                        Component.literal(this.GOLEM_STACK.getItem().getName(golem_stack).getString())
+//                )
+//        );
     }
 
     private void openUpgradeScreen(ServerPlayer player, ItemStack golem_stack) {
-        NetworkHooks.openScreen(
-                player,
+        player.openMenu(
                 new SimpleMenuProvider(
                         (containerId, playerInventory, p) -> {
                             GolemItemUpgradeMenu menu = new GolemItemUpgradeMenu(
@@ -214,10 +227,24 @@ public class GolemItemMenu extends AbstractContainerMenu {
                         Component.literal(this.GOLEM_STACK.getItem().getName(golem_stack).getString())
                 )
         );
+//        NetworkHooks.openScreen(
+//                player,
+//                new SimpleMenuProvider(
+//                        (containerId, playerInventory, p) -> {
+//                            GolemItemUpgradeMenu menu = new GolemItemUpgradeMenu(
+//                                    containerId,
+//                                    playerInventory
+//                            );
+//
+//                            menu.onOpen();
+//                            return menu;
+//                        },
+//                        Component.literal(this.GOLEM_STACK.getItem().getName(golem_stack).getString())
+//                )
+//        );
     }
     private void openStatsScreen(ServerPlayer player, ItemStack golem_stack) {
-        NetworkHooks.openScreen(
-                player,
+        player.openMenu(
                 new SimpleMenuProvider(
                         (containerId, playerInventory, p) -> {
                             GolemItemStatsMenu menu = new GolemItemStatsMenu(
@@ -231,11 +258,25 @@ public class GolemItemMenu extends AbstractContainerMenu {
                         Component.literal(this.GOLEM_STACK.getItem().getName(golem_stack).getString())
                 )
         );
+//        NetworkHooks.openScreen(
+//                player,
+//                new SimpleMenuProvider(
+//                        (containerId, playerInventory, p) -> {
+//                            GolemItemStatsMenu menu = new GolemItemStatsMenu(
+//                                    containerId,
+//                                    playerInventory
+//                            );
+//
+//                            menu.onOpen();
+//                            return menu;
+//                        },
+//                        Component.literal(this.GOLEM_STACK.getItem().getName(golem_stack).getString())
+//                )
+//        );
     }
 
     private void openHomeScreen(ServerPlayer player, ItemStack golem_stack) {
-        NetworkHooks.openScreen(
-                player,
+        player.openMenu(
                 new SimpleMenuProvider(
                         (containerId, playerInventory, p) -> {
                             GolemItemMenu menu = new GolemItemMenu(
@@ -249,6 +290,21 @@ public class GolemItemMenu extends AbstractContainerMenu {
                         Component.literal(this.GOLEM_STACK.getItem().getName(golem_stack).getString())
                 )
         );
+//        NetworkHooks.openScreen(
+//                player,
+//                new SimpleMenuProvider(
+//                        (containerId, playerInventory, p) -> {
+//                            GolemItemMenu menu = new GolemItemMenu(
+//                                    containerId,
+//                                    playerInventory
+//                            );
+//
+//                            menu.onOpen();
+//                            return menu;
+//                        },
+//                        Component.literal(this.GOLEM_STACK.getItem().getName(golem_stack).getString())
+//                )
+//        );
     }
 
     public void onOpen()
@@ -266,7 +322,7 @@ public class GolemItemMenu extends AbstractContainerMenu {
                     .getRecipeManager()
                     .byKey(recipe_location_id)
                     .ifPresent(recipe -> {
-                        if (recipe instanceof GolemProduceRecipe golem_recipe) {
+                        if (recipe.value() instanceof GolemProduceRecipe golem_recipe) {
                             List<ItemStack> output_items = golem_recipe.getOutputs();
 
                             for (int i = 0; i < Math.min(

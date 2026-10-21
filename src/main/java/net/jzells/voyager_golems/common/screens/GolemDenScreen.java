@@ -54,7 +54,7 @@ public class GolemDenScreen extends AbstractContainerScreen<GolemDenMenu> {
     @Override
     public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         renderBg(pGuiGraphics, pPartialTick, pMouseX, pMouseY);
-        renderBackground(pGuiGraphics);
+        renderBackground(pGuiGraphics,pMouseX,pMouseY,pPartialTick);
         super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
         pGuiGraphics.pose().pushPose();
         pGuiGraphics.pose().translate(0,0,100);

@@ -39,7 +39,7 @@ public class GolemItemStatsGUI extends AbstractContainerScreen<GolemItemStatsMen
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        renderBackground(pGuiGraphics);
+//        renderBackground(pGuiGraphics,pMouseX,pMouseY,pPartialTick);
         renderTooltip(pGuiGraphics, pMouseX, pMouseY);
         pGuiGraphics.blit(
                 texture,
@@ -167,12 +167,20 @@ public class GolemItemStatsGUI extends AbstractContainerScreen<GolemItemStatsMen
     }
 
     @Override
-    public void renderBackground(GuiGraphics pGuiGraphics) {
-        pGuiGraphics.pose().pushPose();
-        pGuiGraphics.pose().translate(0,0,-1);
-        super.renderBackground(pGuiGraphics);
-        pGuiGraphics.pose().popPose();
+    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0,0,-1);
+        super.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
+        guiGraphics.pose().popPose();
     }
+
+//    @Override
+//    public void renderBackground(GuiGraphics pGuiGraphics) {
+//        pGuiGraphics.pose().pushPose();
+//        pGuiGraphics.pose().translate(0,0,-1);
+//        super.renderBackground(pGuiGraphics);
+//        pGuiGraphics.pose().popPose();
+//    }
 
     private void renderItemInFrame(int x, int y, ItemStack stack, GuiGraphics guiGraphics) {
         float scale = 3.75F;

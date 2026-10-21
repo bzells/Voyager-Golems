@@ -254,7 +254,7 @@ public class GolemItemGUI extends AbstractContainerScreen<GolemItemMenu> {
 
 
 
-        renderBackground(guiGraphics);
+//        renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         GolemItem golem_item = (GolemItem) menu.GOLEM_STACK.getItem();
         float prestige_percentage = (float )golem_item.getPrestigeCount(menu.GOLEM_STACK) / 5.0f;
         renderPrestigePanel(guiGraphics, x + this.imageWidth + 1, y, mouseX, mouseY, prestige_percentage);
@@ -284,12 +284,20 @@ public class GolemItemGUI extends AbstractContainerScreen<GolemItemMenu> {
     }
 
     @Override
-    public void renderBackground(GuiGraphics pGuiGraphics) {
-        pGuiGraphics.pose().pushPose();
-        pGuiGraphics.pose().translate(0,0,-1);
-        super.renderBackground(pGuiGraphics);
-        pGuiGraphics.pose().popPose();
+    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0,0,-1);
+        super.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
+        guiGraphics.pose().popPose();
     }
+
+//    @Override
+//    public void renderBackground(GuiGraphics pGuiGraphics) {
+//        pGuiGraphics.pose().pushPose();
+//        pGuiGraphics.pose().translate(0,0,-1);
+//        super.renderBackground(pGuiGraphics);
+//        pGuiGraphics.pose().popPose();
+//    }
 
     private void renderHomeScreen(GuiGraphics guiGraphics, int mouseX, int mouseY, int x, int y, float z_val)
     {
@@ -375,7 +383,7 @@ public class GolemItemGUI extends AbstractContainerScreen<GolemItemMenu> {
                 Minecraft.getInstance().player.getX(),
                 Minecraft.getInstance().player.getY(),
                 Minecraft.getInstance().player.getZ(),
-                SoundEvents.UI_BUTTON_CLICK.get(),
+                SoundEvents.UI_BUTTON_CLICK.value(),
                 SoundSource.MASTER,
                 1.0F,
                 1.0F,

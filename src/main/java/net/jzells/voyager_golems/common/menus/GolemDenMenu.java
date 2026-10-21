@@ -10,7 +10,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.SlotItemHandler;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class GolemDenMenu extends AbstractContainerMenu {
 
@@ -33,11 +34,11 @@ public class GolemDenMenu extends AbstractContainerMenu {
     public GolemDenMenu(
             int containerId,
             Inventory playerInventory,
-            GolemDenBlockEntity blockEntity
+            BlockEntity nblockEntity
     ) {
         super(VoyagerMenus.GOLEM_DEN_MENU.get(), containerId);
 
-        this.blockEntity = blockEntity;
+        this.blockEntity = (GolemDenBlockEntity) nblockEntity;
 
         // data slot for syncing client and server (just figured this out today(oct 17th 26), so i have to refactor a lot of code...)
         addDataSlot(recipeProgress);
@@ -119,8 +120,7 @@ public class GolemDenMenu extends AbstractContainerMenu {
         this(
                 containerId,
                 playerInventory,
-                (GolemDenBlockEntity) playerInventory.player.level()
-                        .getBlockEntity(data.readBlockPos())
+                playerInventory.player.level().getBlockEntity(data.readBlockPos())
         );
     }
 

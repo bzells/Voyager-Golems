@@ -10,6 +10,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class VoyagerGuiUtil {
                 Minecraft.getInstance().player.getX(),
                 Minecraft.getInstance().player.getY(),
                 Minecraft.getInstance().player.getZ(),
-                SoundEvents.UI_BUTTON_CLICK.get(),
+                SoundEvents.UI_BUTTON_CLICK.value(),
                 SoundSource.MASTER,
                 1.0F,
                 1.0F,
@@ -134,7 +135,9 @@ public class VoyagerGuiUtil {
 
     public static List<GolemProduceRecipe> getGolemRecipes(GolemItem golem_item, Player player)
     {
-        return player.level().getRecipeManager().getAllRecipesFor(VoyagerRecipes.GOLEM_PRODUCTION_TYPE).stream().filter(
+        return player.level().getRecipeManager().getAllRecipesFor(VoyagerRecipes.GOLEM_PRODUCTION_TYPE).stream()
+                .map(RecipeHolder::value)
+                .filter(
                 recipe -> recipe.getGolemItem().toString().equals(golem_item.toString())
         ).toList();
     }

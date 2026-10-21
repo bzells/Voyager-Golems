@@ -4,7 +4,7 @@ import net.jzells.voyager_golems.VoyagerGolems;
 import net.jzells.voyager_golems.common.blocks.VoyagerBlocks;
 import net.jzells.voyager_golems.common.items.VoyagerItems;
 import net.minecraft.data.PackOutput;
-import net.minecraftforge.common.data.LanguageProvider;
+import net.neoforged.neoforge.common.data.LanguageProvider;
 
 public class GolemLanguageProvider extends LanguageProvider {
     public GolemLanguageProvider(PackOutput output) {
@@ -13,7 +13,7 @@ public class GolemLanguageProvider extends LanguageProvider {
 
     @Override
     protected void addTranslations() {
-        VoyagerItems.ITEMS.getEntries().forEach(item -> {
+        VoyagerGolems.ITEMS.getEntries().forEach(item -> {
 
                 String name = item.getId().getPath()
                         .replace('_', ' ');
@@ -23,7 +23,7 @@ public class GolemLanguageProvider extends LanguageProvider {
                 add(item.get(), name);
 
         });
-        VoyagerBlocks.ITEMS.getEntries().forEach(item -> {
+        VoyagerGolems.BLOCK_ITEMS.getEntries().forEach(item -> {
 
             String name = item.getId().getPath()
                     .replace('_', ' ');

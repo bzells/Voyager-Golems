@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-public class AbstractGolemDenBlock extends BaseEntityBlock {
+public abstract class AbstractGolemDenBlock extends BaseEntityBlock {
     protected AbstractGolemDenBlock(Properties pProperties) {
         super(pProperties);
     }

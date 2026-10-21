@@ -1,16 +1,17 @@
 package net.jzells.voyager_golems.common.blocks;
 
+import com.mojang.serialization.*;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.jzells.voyager_golems.common.blocks.blockentity.GolemDenBlockEntity;
 import net.jzells.voyager_golems.common.blocks.blockentity.VoyagerBlockEntities;
 import net.jzells.voyager_golems.common.data.GolemDenDefinition;
-import net.jzells.voyager_golems.util.Constants;
+import net.jzells.voyager_golems.common.data.GolemDenDefinitionRegistry;
 import net.jzells.voyager_golems.util.VoyagerGuiUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
@@ -20,17 +21,31 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class GolemDenBlock extends BaseEntityBlock {
+public class GolemDenBlock extends BaseEntityBlock{
+
+    public static final MapCodec<GolemDenBlock> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(
+                    BlockBehaviour.propertiesCodec(),
+                    Codec.STRING.fieldOf("golemDen")
+                            .flatXmap(s -> DataResult.success(GolemDenDefinitionRegistry.get(s)),
+                                    p->DataResult.success(p.group().getId()))
+                            .forGetter(GolemDenBlock::getDefinition)
+            ).apply(instance,GolemDenBlock::new));
+
     protected GolemDenBlock(Properties pProperties, GolemDenDefinition definition) {
         super(pProperties);
         this.definition = definition;
+    }
+
+    public MapCodec<GolemDenBlock> codec() {
+        return CODEC;
     }
 
     private final GolemDenDefinition definition;
@@ -38,8 +53,6 @@ public class GolemDenBlock extends BaseEntityBlock {
     public GolemDenDefinition getDefinition() {
         return definition;
     }
-
-
 
     @Nullable
     @Override
@@ -64,7 +77,7 @@ public class GolemDenBlock extends BaseEntityBlock {
     }
 
     @Override
-    public void appendHoverText(ItemStack pStack, @Nullable BlockGetter pLevel, List<Component> pTooltip, TooltipFlag pFlag) {
+    public void appendHoverText(ItemStack pStack, Item.TooltipContext pLevel, List<Component> pTooltip, TooltipFlag pFlag) {
         super.appendHoverText(pStack, pLevel, pTooltip, pFlag);
 
         pTooltip.add(Component.literal(
@@ -99,38 +112,57 @@ public class GolemDenBlock extends BaseEntityBlock {
     // right click opens ui
 
     @Override
-    public InteractionResult use(
-            BlockState pState,
-            Level pLevel,
-            BlockPos pPos,
-            Player pPlayer,
-            InteractionHand pHand,
-            BlockHitResult pHit
-    ) {
-        if (pLevel.isClientSide) {
-            return InteractionResult.sidedSuccess(true);
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        if (level.isClientSide) {
+            return InteractionResult.SUCCESS;
+        } else {
+            if (level.getBlockEntity(pos) instanceof GolemDenBlockEntity golemDenBlockEntity) {
+                player.openMenu(new SimpleMenuProvider(golemDenBlockEntity,golemDenBlockEntity.getDisplayName()), pos);
+                return InteractionResult.SUCCESS;
+            }
         }
-
-        if (pPlayer instanceof ServerPlayer serverPlayer
-                && pLevel.getBlockEntity(pPos) instanceof GolemDenBlockEntity blockEntity) {
-
-            NetworkHooks.openScreen(serverPlayer, blockEntity, pPos);
-        }
-
-        return InteractionResult.sidedSuccess(false);
+        return InteractionResult.CONSUME;
     }
 
-    private boolean passClientChecks(
-            BlockState pState,
-            Level pLevel,
-            BlockPos pPos,
-            Player pPlayer
-    ) {
-        if (pLevel.isClientSide) {
-            return false;
-        }
+//    @Override
+//    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+//        this.useWithoutItem(state,level,pos,player,hitResult);
+//        ItemInteractionResult.
+//        return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+//    }
+    //    @Override
+//    public InteractionResult use(
+//            BlockState pState,
+//            Level pLevel,
+//            BlockPos pPos,
+//            Player pPlayer,
+//            InteractionHand pHand,
+//            BlockHitResult pHit
+//    ) {
+//        if (pLevel.isClientSide) {
+//            return InteractionResult.sidedSuccess(true);
+//        }
+//
+//        if (pPlayer instanceof ServerPlayer serverPlayer
+//                && pLevel.getBlockEntity(pPos) instanceof GolemDenBlockEntity blockEntity) {
+//            NetworkHooks.openScreen(serverPlayer, blockEntity, pPos);
+//        }
+//
+//        return InteractionResult.sidedSuccess(false);
+//    }
 
-        return pLevel.getBlockEntity(pPos) instanceof GolemDenBlockEntity;
-    }
+
+//    private boolean passClientChecks(
+//            BlockState pState,
+//            Level pLevel,
+//            BlockPos pPos,
+//            Player pPlayer
+//    ) {
+//        if (pLevel.isClientSide) {
+//            return false;
+//        }
+//
+//        return pLevel.getBlockEntity(pPos) instanceof GolemDenBlockEntity;
+//    }
 
 }

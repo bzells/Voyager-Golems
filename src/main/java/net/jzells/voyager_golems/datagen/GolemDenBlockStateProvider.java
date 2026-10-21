@@ -3,11 +3,15 @@ package net.jzells.voyager_golems.datagen;
 import net.jzells.voyager_golems.VoyagerGolems;
 import net.jzells.voyager_golems.common.blocks.GolemDenBlock;
 import net.jzells.voyager_golems.common.blocks.VoyagerBlocks;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.client.model.generators.BlockStateProvider;
-import net.minecraftforge.client.model.generators.ConfiguredModel;
-import net.minecraftforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
+import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+//import net.minecraftforge.client.model.generators.BlockStateProvider;
+//import net.minecraftforge.client.model.generators.ConfiguredModel;
+//import net.minecraftforge.common.data.ExistingFileHelper;
 
 public class GolemDenBlockStateProvider extends BlockStateProvider {
 
@@ -22,7 +26,7 @@ public class GolemDenBlockStateProvider extends BlockStateProvider {
     }
 
     private void golemDenBlockStateGen() {
-        VoyagerBlocks.BLOCKS.getEntries().forEach(
+        VoyagerGolems.BLOCKS.getEntries().forEach(
                 blockRegistryObject -> {
                     if (blockRegistryObject.get() instanceof GolemDenBlock)
                     {
@@ -33,9 +37,7 @@ public class GolemDenBlockStateProvider extends BlockStateProvider {
     }
 
     private void registerGolemDen(Block block) {
-        String name = block.builtInRegistryHolder()
-                .key()
-                .location()
+        String name = BuiltInRegistries.BLOCK.getKey(block)
                 .getPath();
 
         var texture = modLoc("block/" + name);

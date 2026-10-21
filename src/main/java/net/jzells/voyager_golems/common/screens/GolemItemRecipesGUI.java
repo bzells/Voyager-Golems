@@ -15,6 +15,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
 import java.util.Comparator;
 import java.util.List;
@@ -65,7 +66,7 @@ public class GolemItemRecipesGUI extends AbstractContainerScreen<GolemItemRecipe
 //        float prestige_percentage = (float )golem_item.getPrestigeCount(menu.GOLEM_STACK) / 5.0f;
 //        renderPrestigePanel(guiGraphics, x + this.imageWidth + 1, y, mouseX, mouseY, prestige_percentage);
 
-        renderBackground(guiGraphics);
+//        renderBackground(guiGraphics,mouseX,mouseY,partialTick);
         renderStatsPanel(guiGraphics, x - 85 - 1, y, menu.GOLEM_STACK);
         renderTooltip(guiGraphics, mouseX, mouseY);
         guiGraphics.blit(
@@ -89,12 +90,20 @@ public class GolemItemRecipesGUI extends AbstractContainerScreen<GolemItemRecipe
     }
 
     @Override
-    public void renderBackground(GuiGraphics pGuiGraphics) {
-        pGuiGraphics.pose().pushPose();
-        pGuiGraphics.pose().translate(0,0,-1);
-        super.renderBackground(pGuiGraphics);
-        pGuiGraphics.pose().popPose();
+    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0,0,-1);
+        super.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
+        guiGraphics.pose().popPose();
     }
+
+//    @Override
+//    public void renderBackground(GuiGraphics pGuiGraphics) {
+//        pGuiGraphics.pose().pushPose();
+//        pGuiGraphics.pose().translate(0,0,-1);
+//        super.renderBackground(pGuiGraphics);
+//        pGuiGraphics.pose().popPose();
+//    }
 
     private void renderHomeScreen(GuiGraphics guiGraphics, int mouseX, int mouseY, int x, int y, float z_val)
     {
@@ -292,7 +301,7 @@ public class GolemItemRecipesGUI extends AbstractContainerScreen<GolemItemRecipe
                 Minecraft.getInstance().player.getX(),
                 Minecraft.getInstance().player.getY(),
                 Minecraft.getInstance().player.getZ(),
-                SoundEvents.UI_BUTTON_CLICK.get(),
+                SoundEvents.UI_BUTTON_CLICK.value(),
                 SoundSource.MASTER,
                 1.0F,
                 1.0F,
@@ -363,8 +372,9 @@ public class GolemItemRecipesGUI extends AbstractContainerScreen<GolemItemRecipe
         return Minecraft.getInstance().level.getRecipeManager()
                 .getAllRecipesFor(VoyagerRecipes.GOLEM_PRODUCTION_TYPE)
                 .stream()
+                .map(RecipeHolder::value)
                 .filter(recipe ->
-                        recipe.getGolemItem() == golem_item
+                        recipe.getGolemItem().getItem() == golem_item
                                 && golem_item.canUseRecipe(menu.GOLEM_STACK, recipe))
                 .sorted(Comparator.comparing(recipe -> recipe.getId().toString()))
                 .toList();

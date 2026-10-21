@@ -1,14 +1,14 @@
 package net.jzells.voyager_golems.datagen;
 
 import net.jzells.voyager_golems.VoyagerGolems;
-import net.minecraftforge.data.event.GatherDataEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
+//import net.minecraftforge.data.event.GatherDataEvent;
+//import net.minecraftforge.eventbus.api.SubscribeEvent;
+//import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(
-        modid = VoyagerGolems.MODID,
-        bus = Mod.EventBusSubscriber.Bus.MOD
-)
+@EventBusSubscriber(modid = VoyagerGolems.MODID)
 public class VoyagerDataGenRegistry {
     @SubscribeEvent
     public static void gatherData(GatherDataEvent event) {
