@@ -3,6 +3,7 @@ package net.jzells.voyager_golems.common.blocks;
 import net.jzells.voyager_golems.common.blocks.blockentity.GolemDenBlockEntity;
 import net.jzells.voyager_golems.common.data.GolemDenDefinition;
 import net.jzells.voyager_golems.common.data.GolemDenDefinitionRegistry;
+import net.jzells.voyager_golems.util.Constants;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -39,15 +40,41 @@ public class VoyagerBlocks {
             );
     public static final Map<String,RegistryObject<Block>> DEN_BLOCKS = new HashMap<>();
 
-    public static final Pair<RegistryObject<Block>, RegistryObject<Item>> FLORA_DEN_T1 = createGolemDenBlock("flora_den", GolemDenDefinitionRegistry.FLORA_T1, Blocks.OAK_PLANKS);
-    public static final Pair<RegistryObject<Block>, RegistryObject<Item>> CAVERN_DEN_T1 = createGolemDenBlock("cavern_den", GolemDenDefinitionRegistry.CAVERN_T1, Blocks.STONE);
-    public static final Pair<RegistryObject<Block>, RegistryObject<Item>> NETHER_DEN_T1 = createGolemDenBlock("nether_den", GolemDenDefinitionRegistry.NETHER_T1, Blocks.NETHERRACK);
-    public static final Pair<RegistryObject<Block>, RegistryObject<Item>> ENDER_DEN_T1 = createGolemDenBlock("ender_den", GolemDenDefinitionRegistry.ENDER_T1, Blocks.END_STONE);
-    public static final Pair<RegistryObject<Block>, RegistryObject<Item>> SHINY_DEN_T1 = createGolemDenBlock("shiny_den", GolemDenDefinitionRegistry.SHINY_T1, Blocks.IRON_BLOCK);
-    public static final Pair<RegistryObject<Block>, RegistryObject<Item>> DARK_DEN_T1 = createGolemDenBlock("dark_den", GolemDenDefinitionRegistry.DARK_T1, Blocks.BASALT);
-    public static final Pair<RegistryObject<Block>, RegistryObject<Item>> SLUDGE_DEN_T1 = createGolemDenBlock("sludge_den", GolemDenDefinitionRegistry.SLUDGE_T1, Blocks.MUD);
+    private static final Map<Constants.GOLEM_GROUPS, Block> DEN_MATERIALS = Map.of(
+            Constants.GOLEM_GROUPS.FLORA, Blocks.OAK_PLANKS,
+            Constants.GOLEM_GROUPS.CAVERN, Blocks.STONE,
+            Constants.GOLEM_GROUPS.NETHER, Blocks.NETHERRACK,
+            Constants.GOLEM_GROUPS.ENDER, Blocks.END_STONE,
+            Constants.GOLEM_GROUPS.SHINY, Blocks.IRON_BLOCK,
+            Constants.GOLEM_GROUPS.DARK, Blocks.BASALT,
+            Constants.GOLEM_GROUPS.SLUDGE, Blocks.MUD
+    );
 
-    public static final Pair<RegistryObject<Block>, RegistryObject<Item>> DARK_DEN_T2 = createGolemDenBlock("dark_den_ii", GolemDenDefinitionRegistry.DARK_T2, Blocks.BASALT);
+    static {
+        for (int i = 0; i < 2; i++) {
+            int tier = i + 1;
+            for (Constants.GOLEM_GROUPS group : Constants.GOLEM_GROUPS.values()) {
+                Block material = DEN_MATERIALS.get(group);
+
+                if (material == null) continue;
+
+                String name = group.getId() + "_den_" + tier;
+
+                createGolemDenBlock(
+                        name,
+                        GolemDenDefinitionRegistry.getDenDefinition(tier, group.getId(), "base"),
+                        material
+                );
+
+//                createGolemDenBlock(
+//                        "xp_" + name,
+//                        GolemDenDefinitionRegistry.getDenDefinition(tier, group.getId(), "xp"),
+//                        material
+//                );
+            }
+        }
+
+    }
 
 
     private static Pair<RegistryObject<Block>, RegistryObject<Item>> createGolemDenBlock(String id, GolemDenDefinition definition, Block blockBehaviour)

@@ -2,65 +2,63 @@ package net.jzells.voyager_golems.common.data;
 
 import net.jzells.voyager_golems.util.Constants;
 import net.minecraft.resources.ResourceLocation;
+import oshi.util.tuples.Pair;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class GolemDenDefinitionRegistry {
-    private static final Map<String, GolemDenDefinition> DEFINITIONS =
+    private record DenKey(String group, int tier, String type) {}
+
+    private static final Map<DenKey, GolemDenDefinition> DEN_DEFINITIONS =
             new HashMap<>();
 
-    public static final GolemDenDefinition FLORA_T1 = register( // should have no played around with trying to use records lol, i hate the way I have this... but if it works...
-            new GolemDenDefinition(
-                    Constants.GOLEM_GROUPS.FLORA,
-                    ResourceLocation.fromNamespaceAndPath(
-                            "voyager_golems",
-                            "textures/gui/flora_den.png"
-                    ),
-                    1.0f, 0.8f, 1, 1
-            )
-    );
 
-    public static final GolemDenDefinition CAVERN_T1 = createGolemDenDefinition(Constants.GOLEM_GROUPS.CAVERN,
-            "cavern_den", 1.0f, 0.8f, 1f, 1);
-    public static final GolemDenDefinition SHINY_T1 = createGolemDenDefinition(Constants.GOLEM_GROUPS.SHINY,
-            "shiny_den", 1.0f, 0.8f, 1f, 1);
-    public static final GolemDenDefinition NETHER_T1 = createGolemDenDefinition(Constants.GOLEM_GROUPS.NETHER,
-            "nether_den", 1.0f, 1.2f, 2f, 1);
-    public static final GolemDenDefinition ENDER_T1 = createGolemDenDefinition(Constants.GOLEM_GROUPS.ENDER,
-            "ender_den", 1.0f, 0.8f, 1f, 1);
-    public static final GolemDenDefinition DARK_T1 = createGolemDenDefinition(Constants.GOLEM_GROUPS.DARK,
-            "cavern_den", 1.0f, 0.8f, 1f, 1);
-    public static final GolemDenDefinition SLUDGE_T1 = createGolemDenDefinition(Constants.GOLEM_GROUPS.DARK,
-            "cavern_den", 1.0f, 1f, 2f, 1);
 
-    public static final GolemDenDefinition DARK_T2 = createGolemDenDefinition(Constants.GOLEM_GROUPS.DARK,
-            "cavern_den", 1.1f, 1.1f, 2f, 2);
-
-    private GolemDenDefinitionRegistry() {}
-
-    private static GolemDenDefinition register(
-            GolemDenDefinition definition
-    ) {
-        DEFINITIONS.put(definition.group().getId(), definition);
-        return definition;
-    }
-
-    public static GolemDenDefinition get(String groupId) {
-        GolemDenDefinition definition = DEFINITIONS.get(groupId);
-
-        if (definition == null) {
-            throw new IllegalArgumentException(
-                    "Unknown Golem Den group: " + groupId
-            );
-        }
-
-        return definition;
-    }
-
-    private static GolemDenDefinition createGolemDenDefinition(Constants.GOLEM_GROUPS group, String gui_texture, float output_boost, float speed_boost, float xp_boost, int tier)
+    private static void registerBaseTieredGolemDefinitions()
     {
-        return new GolemDenDefinition(
+        for (int i = 0; i < 8; i++) {
+            float xp_mult = 1f + i;
+            float output_mult = 1f;
+            float speed_boost = 0.6f + ((float)i / 4);
+
+            for(Constants.GOLEM_GROUPS group : Constants.GOLEM_GROUPS.values())
+            {
+                createGolemDenDefinition(group, group.getId() + "_den", output_mult, speed_boost, xp_mult, i + 1, "base");
+            }
+        }
+    }
+
+    private static void registerXpTieredGolemDefinitions()
+    {
+        for (int i = 0; i < 8; i++) {
+            float xp_mult = 1f + i * 2;
+            float output_mult = .25f;
+            float speed_boost = 0.8f + ((float)i / 4);
+
+            for(Constants.GOLEM_GROUPS group : Constants.GOLEM_GROUPS.values())
+            {
+                createGolemDenDefinition(group, group.getId() + "_den", output_mult, speed_boost, xp_mult, i + 1, "xp");
+            }
+        }
+    }
+
+    static {
+        registerBaseTieredGolemDefinitions();
+        registerXpTieredGolemDefinitions();
+    }
+
+    public static GolemDenDefinition getDenDefinition(int tier, String group, String type) {
+        DenKey key = new DenKey(group, tier, type);
+
+        return DEN_DEFINITIONS.get(key);
+    }
+
+
+
+    private static GolemDenDefinition createGolemDenDefinition(Constants.GOLEM_GROUPS group, String gui_texture, float output_boost, float speed_boost, float xp_boost, int tier, String type)
+    {
+        GolemDenDefinition returnDef =  new GolemDenDefinition(
                 group,
                 ResourceLocation.fromNamespaceAndPath(
                         "voyager_golems",
@@ -68,5 +66,9 @@ public class GolemDenDefinitionRegistry {
                 ),
                 output_boost, speed_boost, xp_boost, tier
         );
+        DenKey key = new DenKey(group.getId(), tier, type);
+        DEN_DEFINITIONS.put(key, returnDef);
+
+        return returnDef;
     }
 }

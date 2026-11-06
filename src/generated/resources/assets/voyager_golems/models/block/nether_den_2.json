@@ -1,0 +1,8 @@
+{
+  "parent": "voyager_golems:block/den_layered",
+  "textures": {
+    "all": "voyager_golems:block/nether_den",
+    "overlay": "voyager_golems:block/den_2",
+    "particle": "voyager_golems:block/nether_den"
+  }
+}
