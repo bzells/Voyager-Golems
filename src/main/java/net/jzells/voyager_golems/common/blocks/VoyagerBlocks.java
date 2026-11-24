@@ -51,7 +51,7 @@ public class VoyagerBlocks {
     );
 
     static {
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 3; i++) {
             int tier = i + 1;
             for (Constants.GOLEM_GROUPS group : Constants.GOLEM_GROUPS.values()) {
                 Block material = DEN_MATERIALS.get(group);
@@ -66,11 +66,17 @@ public class VoyagerBlocks {
                         material
                 );
 
-//                createGolemDenBlock(
-//                        "xp_" + name,
-//                        GolemDenDefinitionRegistry.getDenDefinition(tier, group.getId(), "xp"),
-//                        material
-//                );
+                createGolemDenBlock(
+                        "xp_" + name,
+                        GolemDenDefinitionRegistry.getDenDefinition(tier, group.getId(), "xp"),
+                        material
+                );
+
+                createGolemDenBlock(
+                        "production_" + name,
+                        GolemDenDefinitionRegistry.getDenDefinition(tier, group.getId(), "production"),
+                        material
+                );
             }
         }
 

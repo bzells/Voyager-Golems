@@ -32,8 +32,8 @@ public class GolemDenDefinitionRegistry {
     private static void registerXpTieredGolemDefinitions()
     {
         for (int i = 0; i < 8; i++) {
-            float xp_mult = 1f + i * 2;
-            float output_mult = .25f;
+            float xp_mult = 1f + 1 + (i * 2);
+            float output_mult = .25f + ((float) i / 5);
             float speed_boost = 0.8f + ((float)i / 4);
 
             for(Constants.GOLEM_GROUPS group : Constants.GOLEM_GROUPS.values())
@@ -43,9 +43,24 @@ public class GolemDenDefinitionRegistry {
         }
     }
 
+    private static void registerProductionTieredGolemDefinitions()
+    {
+        for (int i = 0; i < 8; i++) {
+            float xp_mult = 0.1f + ((float) i / 3);
+            float output_mult = 1.1f + ((float) i / 2);
+            float speed_boost = 0.75f + ((float)i / 4);
+
+            for(Constants.GOLEM_GROUPS group : Constants.GOLEM_GROUPS.values())
+            {
+                createGolemDenDefinition(group, group.getId() + "_den", output_mult, speed_boost, xp_mult, i + 1, "production");
+            }
+        }
+    }
+
     static {
         registerBaseTieredGolemDefinitions();
         registerXpTieredGolemDefinitions();
+        registerProductionTieredGolemDefinitions();
     }
 
     public static GolemDenDefinition getDenDefinition(int tier, String group, String type) {

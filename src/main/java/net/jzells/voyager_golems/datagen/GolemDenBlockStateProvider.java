@@ -39,13 +39,18 @@ public class GolemDenBlockStateProvider extends BlockStateProvider {
                 .location()
                 .getPath();
 
+        String type = "";
+        if(name.contains("xp")) type = "xp_"; // look, if it works it works. dont want a rewire for something as simple as this icl
+        if(name.contains("production")) type = "production_";
+
+
         int tier = getTierFromName(name);
         String baseName = getBaseName(name);
 
         ResourceLocation baseTexture =
                 modLoc("block/" + baseName);
 
-        String overlayName = getOverlayName(name, tier);
+        String overlayName = getOverlayName(type, tier);
 
         ResourceLocation overlayTexture =
                 modLoc("block/" + overlayName);
@@ -74,19 +79,19 @@ public class GolemDenBlockStateProvider extends BlockStateProvider {
     }
 
     private String getBaseName(String name) {
-        return name.replaceFirst("_\\d+$", "");
-    }
+        String base = name.replaceFirst("_\\d+$", "");
 
-    private String getOverlayName(String name, int tier) {
-        String denName = name.replaceFirst("_\\d+$", "");
-
-        String type = denName.substring(denName.lastIndexOf('_') + 1);
-
-        if (type.equals("den")) {
-            return "den_" + tier;
+        if (base.indexOf('_') != base.lastIndexOf('_')) {
+            return base.substring(base.indexOf('_') + 1);
         }
 
-        return "den_" + type + "_" + tier;
+        return base;
+    }
+
+    private String getOverlayName(String type, int tier) {
+
+
+        return type + "den_" + tier;
     }
 
 }
